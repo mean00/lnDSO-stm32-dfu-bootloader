@@ -49,7 +49,7 @@ static char serial_no[25];
 #define STR(x) STR_HELPER(x)
 const char * const _usb_strings[5] = {
 	"davidgf.net (libopencm3 based)", // iManufacturer
-	"DFU bootloader [" VERSION "]", // iProduct
+	"lnDSO bootloader [" VERSION "]", // iProduct
 	serial_no, // iSerialNumber
 	// Interface desc string
 	/* This string is used by ST Microelectronics' DfuSe utility. */
