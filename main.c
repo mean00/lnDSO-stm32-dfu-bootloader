@@ -411,27 +411,32 @@ int main(void) {
 	uint32_t imagesize = 0;
 	#endif
 
-	int go_dfu = rebooted_into_dfu() ||
+	int go_dfu = rebooted_into_dfu();
 	#ifdef ENABLE_PINRST_DFU_BOOT
-	             reset_due_to_pin() ||
+		go_dfu |= reset_due_to_pin();
 	#endif
 	#ifdef ENABLE_WATCHDOG
-	             reset_due_to_watchdog() ||
+		go_dfu |= reset_due_to_watchdog() ;
 	#endif
-	             imagesize > FLASH_BOOTLDR_PAYLOAD_SIZE_KB*1024/4 ||
-	             force_dfu_gpio();
-
+	
+	go_dfu |= force_dfu_gpio();			
+	uint32_t sig= *(volatile uint32_t *)APP_ADDRESS;
+	// this is the MSP address so it should begin by 0x200 0 4ffc 
+	if(( sig >>20) != 0x200)
+	 	go_dfu=1;
 	RCC_CSR |= RCC_CSR_RMVF;
-	if(0)
-	if (!go_dfu &&
-	   (*(volatile uint32_t *)APP_ADDRESS & 0x2FFE0000) == 0x20000000) {
 
+	if (!go_dfu)  
+	{
+#ifdef ENABLE_CHECKSUM		
 		// Do some simple XOR checking
 		uint32_t xorv = 0;
 		for (unsigned i = 0; i < imagesize; i++)
 			xorv ^= base_addr[i];
 
-		if (xorv == 0) {  // Matches!
+		if (xorv == 0) 
+#endif		
+		{  // Matches!
 			// Clear flags
 			clear_reboot_flags();
 			#ifdef ENABLE_WATCHDOG
