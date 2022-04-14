@@ -422,7 +422,7 @@ int main(void) {
 	             force_dfu_gpio();
 
 	RCC_CSR |= RCC_CSR_RMVF;
-
+	if(0)
 	if (!go_dfu &&
 	   (*(volatile uint32_t *)APP_ADDRESS & 0x2FFE0000) == 0x20000000) {
 
