@@ -23,6 +23,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake CACHE INTER
 SET(LN_CUSTOM_LD_SCRIPT ${CMAKE_SOURCE_DIR}/linker_script.ld)
 
 #____________
+SET(BOOTLOADER_SIZE 8)
+math(EXPR APP_START    "0x8000000" OUTPUT_FORMAT HEXADECIMAL )  
+math(EXPR PAYLOAD_SIZE "${LN_MCU_FLASH_SIZE}-${BOOTLOADER_SIZE}-${LN_MCU_EEPROM_SIZE}")  
+
 configure_file(flash_config.h.in flash_config.h @ONLY)
 PROJECT(lnDSOBootloader NONE) # the NONE is very important !
 enable_language(C CXX ASM) # this is important too!
