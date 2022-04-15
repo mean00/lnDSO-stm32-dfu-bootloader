@@ -38,8 +38,8 @@ ADD_DEFINITIONS("-DVERSION=\"0.0\"")
 SET(LN_EXT "arm_gd32fx" CACHE INTERNAL "")
 
 include(lnCmake)
-
-GENERATE_GD32_FIRMWARE(lnDSO_Bootloader main.c usb.c init.c arm_gd32fx/start.cpp)
+include_directories(src)
+GENERATE_GD32_FIRMWARE(lnDSO_Bootloader src/main.c src/usb.c src/init.c src/xxhash.c arm_gd32fx/start.cpp)
 #
 MESSAGE(STATUS "Configured for ${LN_MCU}")
 MESSAGE(STATUS "Total Flash ${LN_MCU_FLASH_SIZE}")
