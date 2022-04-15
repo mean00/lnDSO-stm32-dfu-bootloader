@@ -29,6 +29,7 @@
 #include "reboot.h"
 #include "flash.h"
 #include "watchdog.h"
+#include "xxhash.h"
 
 /* Commands sent with wBlockNum == 0 as per ST implementation. */
 #define CMD_SETADDR	0x21
@@ -39,7 +40,7 @@
 
 // USB control data buffer
 uint8_t usbd_control_buffer[DFU_TRANSFER_SIZE];
-
+uint32_t go_dfu;
 // DFU state
 static enum dfu_state usbdfu_state = STATE_DFU_IDLE;
 static struct {
@@ -295,7 +296,7 @@ inline static void gpio_set_mode(uint32_t gpiodev, uint16_t gpion, uint8_t mode)
 #define gpio_read(gpiodev, gpion) \
 	(GPIO_IDR(gpiodev) & (1 << (gpion)))
 
-#ifdef ENABLE_GPIO_DFU_BOOT
+#if 0 //def ENABLE_GPIO_DFU_BOOT
 int force_dfu_gpio() {
 	rcc_gpio_enable(GPIO_DFU_BOOT_PORT);
 	gpio_set_input_pp(GPIO_DFU_BOOT_PORT, GPIO_DFU_BOOT_PIN);
@@ -411,14 +412,19 @@ int main(void) {
 
 	const uint32_t start_addr = 0x08000000 + (FLASH_BOOTLDR_SIZE_KB*1024);
 	const uint32_t * const base_addr = (uint32_t*)start_addr;
+	
 
 	#ifdef ENABLE_CHECKSUM
-	uint32_t imagesize = base_addr[0x20 / 4];
+	uint32_t imageSize = base_addr[2];
+	uint32_t checksum=	base_addr[3];	
 	#else
-	uint32_t imagesize = 0;
+	uint32_t imageSize = 0;
+	uint32_t checksum = 0;
 	#endif
+	uint32_t sig= base_addr[0];
 
-	int go_dfu = rebooted_into_dfu();
+	go_dfu=0;
+	go_dfu = rebooted_into_dfu();
 	#ifdef ENABLE_PINRST_DFU_BOOT
 		go_dfu |= reset_due_to_pin();
 	#endif
@@ -426,25 +432,28 @@ int main(void) {
 		go_dfu |= reset_due_to_watchdog() ;
 	#endif
 	
-	go_dfu |= force_dfu_gpio();			
-	uint32_t sig= *(volatile uint32_t *)APP_ADDRESS;
+	go_dfu |= force_dfu_gpio();		
+
+
 	// this is the MSP address so it should begin by 0x200 x xxxx  
 	if(( sig >>20) != 0x200)
 	 	go_dfu=1;
 	RCC_CSR |= RCC_CSR_RMVF;
 
-	//go_dfu=1;
+	imageSize=100*1024;
+
+	if(!go_dfu && imageSize<256*1024)
+	{
+#ifdef ENABLE_CHECKSUM		
+			uint32_t computed=	XXH32 (&(base_addr[4]),imageSize,0x100);
+			if(computed!=checksum)
+				go_dfu|=1;
+#endif		
+
+	}
 
 	if (!go_dfu)  
 	{
-#ifdef ENABLE_CHECKSUM		
-		// Do some simple XOR checking
-		uint32_t xorv = 0;
-		for (unsigned i = 0; i < imagesize; i++)
-			xorv ^= base_addr[i];
-
-		if (xorv == 0) 
-#endif		
 		{  // Matches!
 			// Clear flags
 			clear_reboot_flags();
