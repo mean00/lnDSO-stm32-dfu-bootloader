@@ -16,6 +16,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
+
+/*
+	On the DSO150 there is a pullup on PA13/SWIO & a pullDown on SWCLK/PA14
+	So if PA13 is GND, it means it is actively pulled down
+
+*/
+
 #include "flash_config.h"
 #include <string.h>
 #include "usb.h"
@@ -297,7 +304,7 @@ int force_dfu_gpio() {
 		__asm__("nop");
 	uint16_t val = gpio_read(GPIO_DFU_BOOT_PORT, GPIO_DFU_BOOT_PIN);
 	gpio_set_input(GPIO_DFU_BOOT_PORT, GPIO_DFU_BOOT_PIN);
-	return val != 0;
+	return !val; // active if pulled down
 }
 #else
 #define force_dfu_gpio()  (0)
@@ -421,10 +428,12 @@ int main(void) {
 	
 	go_dfu |= force_dfu_gpio();			
 	uint32_t sig= *(volatile uint32_t *)APP_ADDRESS;
-	// this is the MSP address so it should begin by 0x200 0 4ffc 
+	// this is the MSP address so it should begin by 0x200 x xxxx  
 	if(( sig >>20) != 0x200)
 	 	go_dfu=1;
 	RCC_CSR |= RCC_CSR_RMVF;
+
+	//go_dfu=1;
 
 	if (!go_dfu)  
 	{
