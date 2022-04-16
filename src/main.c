@@ -455,7 +455,7 @@ int main(void) {
 #endif		
 
 	}
-
+	//go_dfu=1;
 	if (!go_dfu)  
 	{
 		{  // Matches!
