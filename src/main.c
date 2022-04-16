@@ -84,8 +84,14 @@ const char * const _usb_strings[5] = {
 static const char hcharset[16] = "0123456789abcdef";
 static void get_dev_unique_id(char *s) {
 	volatile uint8_t *unique_id = (volatile uint8_t *)0x1FFFF7E8;
+	s[0]='D';
+	s[1]='S';
+	s[2]='O';
+	s[3]='1';
+	s[4]='5';
+	s[5]='0';
 	/* Fetch serial number from chip's unique ID */
-	for (int i = 0; i < 24; i += 2) {
+	for (int i = 6; i < 24; i += 2) {
 		s[i]   = hcharset[(*unique_id >> 4) & 0xF];
 		s[i+1] = hcharset[*unique_id++ & 0xF];
 	}
