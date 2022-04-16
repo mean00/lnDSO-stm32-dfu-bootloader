@@ -440,14 +440,18 @@ int main(void) {
 	 	go_dfu=1;
 	RCC_CSR |= RCC_CSR_RMVF;
 
-	imageSize=100*1024;
-
 	if(!go_dfu && imageSize<256*1024)
 	{
-#ifdef ENABLE_CHECKSUM		
+#ifdef ENABLE_CHECKSUM	
+		if(imageSize==0x1234 && checksum==0x5678)	 // valid but no hash
+		{
+
+		}else
+		{
 			uint32_t computed=	XXH32 (&(base_addr[4]),imageSize,0x100);
 			if(computed!=checksum)
 				go_dfu|=1;
+		}
 #endif		
 
 	}
