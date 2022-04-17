@@ -1,7 +1,7 @@
 # We ony enable usb for arm and non small footprint
 IF(NOT DEFINED LN_ARCH)
 IF(1) # ARM
-    IF(GD32F3)
+    IF(USE_GD32F3)
         SET(LN_ARCH            "ARM"  CACHE INTERNAL "")
         SET(LN_MCU             "M4"   CACHE INTERNAL "")
         SET(LN_MCU_FLASH_SIZE  256    CACHE INTERNAL "")

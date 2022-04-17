@@ -9,7 +9,7 @@ MESSAGE(STATUS "|Starting BootLoader|")
 MESSAGE(STATUS "=====================")
 #____________
 SET(AF_FOLDER  ${CMAKE_SOURCE_DIR}/)
-OPTION(GD32F3 "Build for GD32F303" OFF)
+OPTION(USE_GD32F3 "Build for USE_GD32F303" OFF)
 include(./mcuSelect.cmake)
 
 SET(LN_LTO "-flto" CACHE INTERNAL "")
@@ -49,7 +49,7 @@ GENERATE_GD32_FIRMWARE(lnDSO_Bootloader src/main.c src/usb.c src/init.c src/xxha
 MESSAGE(STATUS "Configured for ${LN_MCU}")
 MESSAGE(STATUS "Total Flash ${LN_MCU_FLASH_SIZE}")
 
-IF(GD32F3)
-    set_target_properties(lnDSO_Bootloader PROPERTIES OUTPUT_NAME lnDSO_Bootloader_GD32F303)
-ENDIF(GD32F3)
+IF(USE_GD32F3)
+    set_target_properties(lnDSO_Bootloader PROPERTIES OUTPUT_NAME lnDSO_Bootloader_USE_GD32F303)
+ENDIF(USE_GD32F3)
 
