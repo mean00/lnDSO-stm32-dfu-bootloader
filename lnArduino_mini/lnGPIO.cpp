@@ -5,10 +5,10 @@
 #include "lnArduino.h"
 #include "lnGPIO.h"
 #include "lnGPIO_priv.h"
-#include "lnAFIO_priv.h"
+
 #include "lnPeripheral_priv.h"
-#include "lnPinMapping.h"
-#include "lnTimer.h"
+
+
 
 
 static  LN_GPIO *gpio[5]={(LN_GPIO *)LN_GPIOA_ADR,(LN_GPIO *)LN_GPIOB_ADR,(LN_GPIO *)LN_GPIOC_ADR,(LN_GPIO *)LN_GPIOD_ADR,(LN_GPIO *)LN_GPIOE_ADR};
@@ -19,7 +19,6 @@ static  LN_GPIO *gpioC=(LN_GPIO *)LN_GPIOC_ADR;
 
 static  LN_GPIO *gpios[3]={gpioA,gpioB,gpioC};
 
-LN_AFIO         *aAfio=(LN_AFIO *)LN_AFIO_ADR;
 
 /**
  * 
@@ -29,17 +28,12 @@ LN_AFIO         *aAfio=(LN_AFIO *)LN_AFIO_ADR;
 void lnPinMode(const lnPin xpin, const GpioMode mode)
 {
     LN_GPIO *port=gpio[xpin>>4];
-    const LN_PIN_MAPPING *lnPin=pinMappings+xpin;
-//    xAssert(lnPin->pin==xpin);
     int pin=xpin&0xf;
     volatile uint32_t *CTL;
    
     uint32_t value;
     switch(mode)
     {
-        case lnDAC_MODE:        value=LNGPIOSET(LN_CTL_MD_INPUT,LN_CTL_INPUT_ANALOG); break;
-        case lnADC_MODE:        value=LNGPIOSET(LN_CTL_MD_INPUT,LN_CTL_INPUT_ANALOG); break;    
-        case lnFLOATING:        value=LNGPIOSET(LN_CTL_MD_INPUT,LN_CTL_INPUT_FLOATING); break;
         case lnINPUT_PULLUP:    
                                 port->BOP=1<<pin;
                                 value=LNGPIOSET(LN_CTL_MD_INPUT,LN_CTL_INPUT_PULLUPPULLDOWN); 
@@ -50,12 +44,7 @@ void lnPinMode(const lnPin xpin, const GpioMode mode)
                                 break;
         
         case lnOUTPUT:          value=LNGPIOSET (LN_CTL_MD_OUTPUT,LN_CTL_OUTPUT_PP); break;
-        case lnOUTPUT_OPEN_DRAIN:value=LNGPIOSET(LN_CTL_MD_OUTPUT,LN_CTL_OUTPUT_OD); break;
-        case lnPWM:             
-                                xAssert(lnPin->timer!=-1);                                
-                                
-                                //lnTimer::setPwmMode(lnPin->timer, lnPin->timerChannel);
-                                
+        case lnOUTPUT_OPEN_DRAIN:value=LNGPIOSET(LN_CTL_MD_OUTPUT,LN_CTL_OUTPUT_OD); break;                                
         case lnALTERNATE_PP:    value=LNGPIOSET (LN_CTL_MD_OUTPUT,LN_CTL_OUTPUT_ALTERNAT_PP); break;
         case lnALTERNATE_OD:    value=LNGPIOSET (LN_CTL_MD_OUTPUT,LN_CTL_OUTPUT_ALTERNAT_OD); break;
         default:
@@ -74,26 +63,6 @@ void lnPinMode(const lnPin xpin, const GpioMode mode)
     ref&=~(0Xf<<(pin*4));
     ref|=value<<(pin*4);
     *CTL=ref;        
-}
-/**
- *  \brief Hardcoded switch PB10/PB11
- * @param timer
- */
-void lnRemapTimerPin(int timer)
-{
-    switch(timer)
-    {
-        case 1:
-        {
-            uint32_t v=  aAfio->PCF0;
-            v&=LN_GPIO_TIMER1_MASK;
-            v|=LN_GPIO_TIMER1_REMAP;
-            aAfio->PCF0=v;
-        }
-            break;
-        default:
-            xAssert(0);
-    }
 }
 
 /**
@@ -114,14 +83,6 @@ void lnDigitalWrite(const lnPin pin, bool value)
         radix=(1<<16);
     }
     port->BOP=radix<<xpin;
-}
-void lnDigitalToggle(const lnPin pin)
-{
-    LN_GPIO *port=gpio[pin>>4];
-    int xpin=pin&0xf; 
-    uint32_t val=port->OCTL;
-    val^=1<<xpin;
-    port->OCTL=val;
 }
 /**
  * 

@@ -42,11 +42,7 @@ extern "C"
     void noInterrupt()
     {
         ENTER_CRITICAL();
-    }
-    void vApplicationStackOverflowHook( void *xTask,    char * pcTaskName )
-    {
-        deadEnd(0x1001);
-    }
+    }  
     int _getpid()
     {
         return 0;

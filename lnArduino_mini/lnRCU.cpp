@@ -113,39 +113,5 @@ void lnPeripherals::disable(const Peripherals periph)
 {
     _rcuAction(periph,RCU_DISABLE);
 }
-/**
-
-*/
-extern uint32_t _rcuClockApb1;
-void lnPeripherals::enableUsb48Mhz()
-{
-  static bool usb48M=false;
-  if(usb48M) return;
-  usb48M=true;
-  // careful, the usb clock must be off !
-  int scaler=(2*lnPeripherals::getClock(pSYSCLOCK))/48000000;
-  int x=0;
-
-  switch(scaler)
-  {
-      case 3: x=0;break; // 3/2=1.5
-      case 2: x=1;break; // 2/2=1
-      case 5: x=2;break; // 5/2=2.5
-      case 4: x=3;break; // 4/2=2
-      default:
-        xAssert(0); // invalid sys clock
-        break;
-  }
-
-  if(lnCpuID::vendor()!=lnCpuID::LN_MCU_GD32)
-  {
-    if(x>1) xAssert(0); // STM32F1 chip only supports div by 1 and div by 1.5, i.e. x=0 or 1
-                        // only GD32 has more dividers
-  }
-  uint32_t cfg0=arcu->CFG0;
-  cfg0&=LN_RCU_CFG0_USBPSC_MASK;
-  cfg0|=LN_RCU_CFG0_USBPSC(x);
-  arcu->CFG0=cfg0;
-}
 
 // EOF
