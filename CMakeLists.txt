@@ -15,7 +15,7 @@ include(./mcuSelect.cmake)
 #SET(LN_LTO "-flto" CACHE INTERNAL "")
 
 ADD_DEFINITIONS(" -fno-builtin-memcpy ")
-ADD_DEFINITIONS("-DENABLE_GPIO_DFU_BOOT -DGPIO_DFU_BOOT_PORT=GPIOA -DGPIO_DFU_BOOT_PIN=13 -DENABLE_CHECKSUM") 
+ADD_DEFINITIONS("-DENABLE_CHECKSUM") 
 
 ADD_DEFINITIONS("-DXXH_NO_STDLIB  -DXXH_NO_XXH3 -DXXH_NO_LONG_LONG -DXXH_NO_STREAM") 
 
@@ -53,6 +53,8 @@ add_subdirectory(simplerILI9341)
 include_directories( lcdDriver/ )
 include_directories(simplerILI9341)
 GENERATE_GD32_FIRMWARE(lnDSO_Bootloader src/main.cpp src/usb.cpp src/init.cpp src/xxhash.c arm_gd32fx/start.cpp src/stubs.cpp src/lcd.cpp 
+                src/dfu.cpp 
+                src/reboot.cpp
                 lnArduino_mini/systemHelper.cpp
                 lnArduino_mini/lnGPIO.cpp lnArduino_mini/lnPinMapping.cpp lnArduino_mini/systemAlloc.cpp
                 lnArduino_mini/lnRCU.cpp lnArduino_mini/lnRCU_systemClock_arm_gd32fx.cpp

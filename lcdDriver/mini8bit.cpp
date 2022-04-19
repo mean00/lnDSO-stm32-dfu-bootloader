@@ -111,7 +111,6 @@ void ln8bit9341::write8(uint8_t c)
 uint8_t ln8bit9341::read8()
 {
     RD_ACTIVE;
-
     lnDelayUs(10);
     uint8_t temp = lnReadPort(_dataPort) & 0xff;
     lnDelayUs(10);
@@ -566,9 +565,9 @@ void lnFast8bitIo::pulsesLowNop(int nb)
 #if 1
     register uint32_t up = _onbit, down = _offbit;
     volatile register uint32_t *onoff = _onoff;
-    for (int i = 0; i < nb; i++)
+    for (int i = 0; i < nb*2; i++)
     {
-        PULSE
+        WRP
     }
 #else
     register uint32_t up = _onbit, down = _offbit;

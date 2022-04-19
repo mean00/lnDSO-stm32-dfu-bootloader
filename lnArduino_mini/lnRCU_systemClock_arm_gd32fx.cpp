@@ -23,8 +23,7 @@ uint32_t jtagId=0;
 uint32_t lnPeripherals::getClock(const Peripherals periph)
 {
     switch(periph)
-    {
-        case pAF:
+    {        
         case pSYSCLOCK:
                     return SystemCoreClock;break;
         default:

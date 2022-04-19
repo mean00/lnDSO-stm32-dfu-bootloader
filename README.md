@@ -4,10 +4,11 @@ lnDSO bootloader
 This is a slightly modified version of STM32F103 DFU bootloader
 for the lnDSO project
 Changes :
-* Force DFU is PA13
+* Press the "OK" button to force DFU
 * Signature is at the beginning of the RAM
 * Extended to 8kB max size
 * Cmake based build system derived from lnArduino
+* Firmware is xxhashed for integrity check
 
 Original Readme follows 
 

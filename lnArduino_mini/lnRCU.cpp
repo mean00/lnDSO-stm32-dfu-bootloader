@@ -26,14 +26,11 @@ struct RCU_Peripheral
  */
 static const RCU_Peripheral _peripherals[]=
 {           // PERIP          APB         BIT
-    {        pNONE,          0,          0},    
-    {        pUSB,           1,          LN_RCU_APB1_USBDEN}, // not sure
+
+    {        pNONE,          2,          0},
     {        pGPIOA,         2,          LN_RCU_APB2_PAEN},
     {        pGPIOB,         2,          LN_RCU_APB2_PBEN},
     {        pGPIOC,         2,          LN_RCU_APB2_PCEN},
-    {        pGPIOD,         2,          LN_RCU_APB2_PDEN},
-    {        pGPIOE,         2,          LN_RCU_APB2_PEEN},
-    {        pAF,            2,          LN_RCU_APB2_AFEN},
     //
     //
 };
@@ -150,31 +147,5 @@ void lnPeripherals::enableUsb48Mhz()
   cfg0|=LN_RCU_CFG0_USBPSC(x);
   arcu->CFG0=cfg0;
 }
-/**
- *
- * @param divider
- */
-void lnPeripherals::setAdcDivider(lnADC_DIVIDER divider)
-{
-    uint32_t val=arcu->CFG0;
 
-    val&=LN_RCU_ADC_PRESCALER_MASK;
-    int r=(int)divider;
-    if(r&4)
-    {
-        if(lnCpuID::vendor()==lnCpuID::LN_MCU_GD32) // only up to 8
-        {
-          val|=LN_RCU_ADC_PRESCALER_HIGHBIT;
-          val|=LN_RCU_ADC_PRESCALER_LOWBIT(r&3);
-        }
-        else
-            val |=LN_RCU_ADC_PRESCALER_LOWBIT(lnADC_CLOCK_DIV_BY_8);
-    }
-    else
-    {
-        val|=LN_RCU_ADC_PRESCALER_LOWBIT(r);
-    }
-    arcu->CFG0=val;
-
-}
 // EOF

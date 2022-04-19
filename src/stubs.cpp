@@ -4,7 +4,7 @@
 #include "lnSCB_arm_priv.h"
 #include "lnNVIC_arm_priv.h"
 #include "lnIRQ_arm.h"
-
+#include "sys/types.h"
 
 
 volatile uint32_t sysTick=0;
@@ -14,7 +14,7 @@ extern "C" void tick(void)
 	sysTick++;
 }
 
-extern "C" void do_assert()
+extern "C" void do_assert(const char *msg)
 {
     deadEnd(2);
 }
