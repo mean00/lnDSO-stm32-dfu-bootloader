@@ -30,6 +30,8 @@
 #include "flash.h"
 #include "watchdog.h"
 #include "xxhash.h"
+#include "lnArduino.h"
+
 
 /* Commands sent with wBlockNum == 0 as per ST implementation. */
 #define CMD_SETADDR	0x21
@@ -55,7 +57,7 @@ static char serial_no[25];
 
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
-const char * const _usb_strings[5] = {
+const char *  _usb_strings[5] = {
 	"davidgf.net (libopencm3 based)", // iManufacturer
 	"lnDSO bootloader [" VERSION "]", // iProduct
 	serial_no, // iSerialNumber
@@ -81,7 +83,7 @@ const char * const _usb_strings[5] = {
 	#endif
 };
 
-static const char hcharset[16] = "0123456789abcdef";
+static const char hcharset[16+1] = "0123456789abcdef";
 static void get_dev_unique_id(char *s) {
 	volatile uint8_t *unique_id = (volatile uint8_t *)0x1FFFF7E8;
 	s[0]='D';
@@ -129,7 +131,7 @@ static void _full_system_reset() {
 #define rcc_gpio_enable(gpion) \
 	RCC_APB2ENR |= (1 << (gpion + 2));
 
-
+void lcdRun();
 static void usbdfu_getstatus_complete(struct usb_setup_data *req) {
 	(void)req;
 
@@ -461,7 +463,7 @@ int main(void) {
 #endif		
 
 	}
-	//go_dfu=1;
+	go_dfu=1;
 	if (!go_dfu)  
 	{
 		{  // Matches!
@@ -499,6 +501,8 @@ int main(void) {
 	get_dev_unique_id(serial_no);
 	usb_init();
 
+	lcdRun();
+
 	while (1) {
 		// Poll based approach
 		do_usb_poll();
@@ -508,15 +512,5 @@ int main(void) {
 			_full_system_reset();
 		}
 	}
+	return 0;
 }
-
-// Implement this here to save space, quite minimalistic :D
-void *memcpy(void * dst, const void * src, size_t count) {
-	uint8_t * dstb = (uint8_t*)dst;
-	uint8_t * srcb = (uint8_t*)src;
-	while (count--)
-		*dstb++ = *srcb++;
-	return dst;
-}
-
-

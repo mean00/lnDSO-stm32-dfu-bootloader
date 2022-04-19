@@ -30,7 +30,7 @@ void null_handler(void) {
 /* Less common symbols exported by the linker script(s): */
 typedef void (*funcp_t) (void);
 
-void main(void);
+int main(void);
 
 void __attribute__ ((naked)) reset_handler(void) {
 	volatile unsigned *src, *dest;
@@ -51,6 +51,7 @@ void __attribute__ ((naked)) reset_handler(void) {
 
 	/* Call the application's entry point. */
 	main();
+	
 }
 
 // Vector table (bare minimal one)
@@ -63,9 +64,8 @@ vector_table_t vector_table = {
 	.memory_manage_fault = null_handler,
 	.bus_fault = null_handler,
 	.usage_fault = null_handler,
-	.debug_monitor = null_handler,
 	.sv_call = null_handler,
+	.debug_monitor = null_handler,	
 	.pend_sv = null_handler,
 	.systick = null_handler,
 };
-

@@ -113,15 +113,15 @@ void usb_init() {
 #define USBD_PM_TOP 0x40
 
 static void st_usbfs_copy_to_pm(volatile void *vPM, const void *buf, uint16_t len) {
-	const uint16_t *lbuf = buf;
-	volatile uint32_t *PM = vPM;
+	const uint16_t *lbuf = (const uint16_t *)buf;
+	volatile uint32_t *PM = (volatile uint32_t *)vPM;
 	for (len = (len + 1) >> 1; len; len--)
 		*PM++ = *lbuf++;
 }
 
 static void st_usbfs_copy_from_pm(void *buf, const volatile void *vPM, uint16_t len) {
-	uint16_t *lbuf = buf;
-	const volatile uint16_t *PM = vPM;
+	uint16_t *lbuf = (uint16_t *)buf;
+	const volatile uint16_t *PM = (const volatile uint16_t *)vPM;
 	uint8_t odd = len & 1;
 
 	for (len >>= 1; len; PM += 2, lbuf++, len--)
@@ -386,7 +386,7 @@ static enum usbd_request_return_codes usb_control_request_dispatch() {
 	const uint8_t mask = USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT;
 	if ((usb_req.bmRequestType & mask) == type) {
 		datasize = usb_req.wLength;
-		int result = usbdfu_control_request(&usb_req, &datasize, &usb_complete_cb);
+		usbd_request_return_codes result = usbdfu_control_request(&usb_req, &datasize, &usb_complete_cb);
 		if (result == USBD_REQ_HANDLED || result == USBD_REQ_NOTSUPP)
 			return result;
 	}

@@ -47,6 +47,7 @@
 
 
 extern int  main(void);
+extern "C" void deadEnd(int z);
 
 extern "C"
 {
@@ -97,5 +98,8 @@ extern "C" void  __attribute__((noreturn))  start_c(void)
 
 }
 
-
+extern "C" void fault()
+{
+    deadEnd(5);
+}
 // EOF

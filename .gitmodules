@@ -1,0 +1,3 @@
+[submodule "simplerILI9341"]
+	path = simplerILI9341
+	url = https://github.com/mean00/simplerILI9341.git

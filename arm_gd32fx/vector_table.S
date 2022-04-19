@@ -36,6 +36,24 @@ __stm32_vector_table:
 /* CM3 core interrupts */
 	.long	__msp_init-4
 	.long	__exc_reset
-	.long   0
-	.long   0
+
+	.long	fault // nmi
+	.long	fault // hard
+	.long	fault // mem
+	.long	fault // bus
+	.long	fault // usage
+	.long	fault // 2
+	.long	fault // 2
+	.long	fault // 2
+	.long	fault // 2
+	.long	fault // SV
+	.long	fault // Debug
+	.long	fault // 3
+	.long	fault // PendSv
+	.long	tick  // tick
+	.long	fault // PendSv
+	.long	fault // PendSv
+	.long	fault // PendSv
+	.long	fault // PendSv
+
 	.size	__stm32_vector_table, . - __stm32_vector_table
