@@ -8,12 +8,14 @@
 extern const uint8_t dso_resetOff[] ;
 extern const uint8_t dso_wakeOn[] ;
 
+int start,end;
+extern volatile int sysTick;
 /**
  * 
  */
-void lcdRun()
+void runLcd()
 {
-
+   
 	ln8bit9341 ili( 240, 320,
                     1,          // port B
                     PC14,  //DC/RS
@@ -22,8 +24,11 @@ void lcdRun()
                     PA6,  // READ
                     PB9 ); // RESET                                  
     ili.init(dso_resetOff,dso_wakeOn);    
-    ili.setRotation(1);
-    ili.fillScreen(0x10f);
+  //  ili.setRotation(1);
+  while(1)
+  {
+    ili.fillScreen(0x1f);
+  }
 
 }
 // EOF

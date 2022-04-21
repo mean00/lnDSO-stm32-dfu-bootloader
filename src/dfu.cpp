@@ -273,7 +273,9 @@ static void _full_system_reset() {
 #define RCC_CR       (*(volatile uint32_t*)0x40021000U)
 #define RCC_CFGR     (*(volatile uint32_t*)0x40021004U)
 
-
+/**
+ * 
+ */
 void clock_setup_in_hse_8mhz_out_72mhz() {
 	// No need to use HSI or HSE while setting up the PLL, just use the RC osc.
 
@@ -303,20 +305,16 @@ void clock_setup_in_hse_8mhz_out_72mhz() {
 
 	// Select PLL as SYSCLK source.
     RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_SW) | (RCC_CFGR_SW_SYSCLKSEL_PLLCLK << RCC_CFGR_SW_SHIFT);
-
-
-
 }
-
+/**
+ * 
+ */
 void setupForUsb()
 {
+	clock_setup_in_hse_8mhz_out_72mhz();
 	lnPeripherals::enable(pGPIOA);
     lnPeripherals::enable(pGPIOB);
     lnPeripherals::enable(pGPIOC);
-	
-
-	clock_setup_in_hse_8mhz_out_72mhz();
-
 	// start tick interrupt
     portNVIC_SYSTICK_CTRL_REG = 0UL;
     portNVIC_SYSTICK_CURRENT_VALUE_REG = 0UL;
@@ -324,8 +322,6 @@ void setupForUsb()
     /* Configure SysTick to interrupt at the requested rate. */
     portNVIC_SYSTICK_LOAD_REG = ( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
     portNVIC_SYSTICK_CTRL_REG = ( portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT );
-
-
 
 	/* Disable USB peripheral as it overrides GPIO settings */
 	*USB_CNTR_REG = USB_CNTR_PWDN;
@@ -338,24 +334,19 @@ void setupForUsb()
 	xDelay(100);
 	lnDigitalWrite(PA12,1);
 }
-
+/**
+ * 
+ */
 void runDfu()
 {
-	
-
 	get_dev_unique_id(serial_no);
 	usb_init();
-
-	lcdRun();
-
 	while (1) {
 		// Poll based approach
 		do_usb_poll();
 		if (usbdfu_state == STATE_DFU_MANIFEST) {
-			// USB device must detach, we just reset...
-			clear_reboot_flags();
+			// USB device must detach, we just reset...			
 			_full_system_reset();
 		}
 	}
-	
 }

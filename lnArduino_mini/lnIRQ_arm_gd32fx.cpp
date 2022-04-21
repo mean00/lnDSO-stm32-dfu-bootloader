@@ -34,10 +34,10 @@ volatile LN_NVIC *anvic=(LN_NVIC *)0xE000E100;
 /**
  *  \brief SoftReset, only resets the core
  * */
-void lnSoftSystemReset()
+static void sysReset(int x)
 {
     uint32_t aircr=aSCB->AIRCR;
-    aircr= AIRCR_KEY+(1<<0); // VECTRESET
+    aircr= AIRCR_KEY+(1<<x); // VECTRESET
     aSCB->VTOR=0; // boot to bootloader, not the app
     aSCB->AIRCR= aircr;
     while(1)
@@ -46,19 +46,17 @@ void lnSoftSystemReset()
     }
 }
 
+void lnSoftSystemReset()
+{
+    sysReset(0);
+}
+
 /**
  * \brief Full reset, reset the full MCU
  */
 void lnHardSystemReset()
 {
-    uint32_t aircr=aSCB->AIRCR;
-    aircr= AIRCR_KEY+(1<<2); // SYSREQRESET
-    aSCB->VTOR=0; // boot to bootloader, not the app
-    aSCB->AIRCR= aircr;
-    while(1)
-    {
-
-    }
+    sysReset(2);
 }
 
 

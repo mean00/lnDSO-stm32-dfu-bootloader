@@ -24,18 +24,21 @@ void xDelay(int ms)
 	uint32_t tgt=sysTick+ms;
 	while(1)
 	{
-		if(sysTick>tgt) return;
+		if(sysTick>tgt) 
+			return;
 	}
 }
 void delay(int ms)
 {
     xDelay(ms);
 }
+/**
+ * 
+ */
 void lnDelayUs(int us)
 {
-
-	for(int i=0;i<us;i++)
-		for(int j=0;j<72;j++)
+	int count=(us*72)/6; // appromixate
+	for(int i=0;i<count;i++)
 				__asm__("nop");
 
 }
@@ -55,3 +58,24 @@ void *memcpy(void * dst, const void * src, size_t count) {
 	return dst;
 }
 
+
+/**
+
+*/
+#if 0
+void lnDelayUs(int wait)
+{
+    uint64_t target=lnGetUs()+wait;
+    while(1)
+    {
+        uint64_t vw=lnGetUs();
+        if(vw>target)
+            return;
+        __asm__("nop"::);
+    }
+
+}
+
+#endif
+
+// EOF

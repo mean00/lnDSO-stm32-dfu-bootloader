@@ -35,6 +35,7 @@
 #include "registers.h"
 
 void runDfu();
+void runLcd();
 void setupForUsb();
 
 #define FORCE_DFU_IO PB7
@@ -65,23 +66,24 @@ int main(void)
 	
 	if(!go_dfu && ( sig >>20) != 0x200)
 	 	go_dfu|=2;
-	RCC_CSR |= RCC_CSR_RMVF;
+	RCC_CSR |= RCC_CSR_RMVF; // Clear reset flag
 
-	if(!go_dfu && imageSize<256*1024)
+	if(!go_dfu && imageSize<256*1024) // Check hash of app is correct
 	{
-
-		if(imageSize!=0x1234 || checksum!=0x5678)	 // valid but no hash
+		if(imageSize!=0x1234 || checksum!=0x5678)	 // valid but no hash, we accept that too
 		{
 			uint32_t computed=	XXH32 (&(base_addr[4]),imageSize,0x100);
 			if(computed!=checksum)
 				go_dfu|=4;
 		}
-
 	}
+	clear_reboot_flags();
 	//go_dfu=1;
+
+
 	if (!go_dfu)  // all seems good, run the app
 	{
-			clear_reboot_flags();
+			
 			// Set vector table base address.
 			volatile uint32_t *_csb_vtor = (uint32_t*)0xE000ED08U;
 			*_csb_vtor = APP_ADDRESS & 0xFFFF;
@@ -94,5 +96,6 @@ int main(void)
 
 	// Something is wrong , go DFU
 	setupForUsb();
+	//runLcd();
 	runDfu();
 }

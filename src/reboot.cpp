@@ -17,7 +17,7 @@ void clear_reboot_flags() {
 }
 
 // Returns whether we were rebooted into DFU mode
-int rebooted_into_dfu() {	
+bool rebooted_into_dfu() {	
 	return (*marker == 0xDEADBEEFCC00FFEEULL);
 }
 

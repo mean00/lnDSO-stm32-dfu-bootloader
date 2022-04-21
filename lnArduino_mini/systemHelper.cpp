@@ -75,22 +75,5 @@ namespace std
         do_assert(a);
     }
 }
-/**
 
-*/
-#if 0
-void lnDelayUs(int wait)
-{
-    uint64_t target=lnGetUs()+wait;
-    while(1)
-    {
-        uint64_t vw=lnGetUs();
-        if(vw>target)
-            return;
-        __asm__("nop"::);
-    }
-
-}
-
-#endif
 // EOF

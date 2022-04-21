@@ -55,13 +55,12 @@ include_directories(simplerILI9341)
 
 add_library(miniLnArduino STATIC lnArduino_mini/systemHelper.cpp
     lnArduino_mini/lnGPIO.cpp 
-    #lnArduino_mini/lnPinMapping.cpp 
     lnArduino_mini/systemAlloc.cpp
     lnArduino_mini/lnRCU.cpp 
-    lnArduino_mini/lnRCU_systemClock_arm_gd32fx.cpp
     lnArduino_mini/lnIRQ_arm_gd32fx.cpp)
 
-GENERATE_GD32_FIRMWARE(lnDSO_Bootloader src/main.cpp src/usb.cpp src/init.cpp src/xxhash.c arm_gd32fx/start.cpp src/stubs.cpp src/lcd.cpp 
+GENERATE_GD32_FIRMWARE(lnDSO_Bootloader src/main.cpp src/usb.cpp 
+                src/xxhash.c arm_gd32fx/start.cpp src/stubs.cpp src/lcd.cpp 
                 src/dfu.cpp 
                 src/reboot.cpp
                 
