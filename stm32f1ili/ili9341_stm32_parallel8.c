@@ -48,7 +48,7 @@ static const uint8_t dso_wakeOn[] __attribute__((used))= {
     0
 } ;
 
-
+extern void delay(int ms);
 
 /**
  * Set an area for drawing on the display with start row,col and end row,col.
@@ -80,6 +80,23 @@ void ili_set_address_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 }
 
 
+void ili_dataBegin()
+{
+	ILI_DC_DAT;
+}
+void ili_dataEnd()
+{
+	ILI_DC_CMD;
+}
+void ili_sendWords(int nb, const uint16_t *data)
+{
+	for(int i=0;i<nb;i++)
+	{
+		uint8_t color_high = data[i] >> 8;
+		uint8_t color_low = data[i] ;
+		ILI_WRITE_8BIT(color_high); ILI_WRITE_8BIT(color_low);
+	}
+}
 
 /**
  * Fills `len` number of pixels with `color`.
@@ -89,10 +106,11 @@ void ili_set_address_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
  */
 void ili_fill_color(uint16_t color, uint32_t len)
 {
+	
 	/*
 	* Here, macros are directly called (instead of inline functions) for performance increase
 	*/
-	uint16_t blocks = (uint16_t)(len / 64); // 64 pixels/block
+	
 	uint8_t  pass_count;
 	uint8_t color_high = color >> 8;
 	uint8_t color_low = color;
@@ -102,46 +120,9 @@ void ili_fill_color(uint16_t color, uint32_t len)
 	ILI_WRITE_8BIT(color_high); ILI_WRITE_8BIT(color_low);
 	len--;
 
-	// If higher byte and lower byte are identical,
-	// just strobe the WR pin to send the previous data
-	if(color_high == color_low)
+	while(len--)
 	{
-		while(blocks--)
-		{
-			// pass count = number of blocks / pixels per pass = 64 / 4
-			pass_count = 16;
-			while(pass_count--)
-			{
-				ILI_WR_STROBE; ILI_WR_STROBE; ILI_WR_STROBE; ILI_WR_STROBE; // 2
-				ILI_WR_STROBE; ILI_WR_STROBE; ILI_WR_STROBE; ILI_WR_STROBE; // 4
-			}
-		}
-		// Fill any remaining pixels (1 to 64)
-		pass_count = len & 63;
-		while (pass_count--)
-		{
-			ILI_WR_STROBE; ILI_WR_STROBE;
-		}
-	}
-
-	// If higher and lower bytes are different, send those bytes
-	else
-	{
-		while(blocks--)
-		{
-			pass_count = 16;
-			while(pass_count--)
-			{
-				ILI_WRITE_8BIT(color_high); ILI_WRITE_8BIT(color_low); 	ILI_WRITE_8BIT(color_high); ILI_WRITE_8BIT(color_low); //2
-				ILI_WRITE_8BIT(color_high); ILI_WRITE_8BIT(color_low); 	ILI_WRITE_8BIT(color_high); ILI_WRITE_8BIT(color_low); //4
-			}
-		}
-		pass_count = len & 63;
-		while (pass_count--)
-		{
-			// write here the remaining data
-			ILI_WRITE_8BIT(color_high); ILI_WRITE_8BIT(color_low);
-		}
+			ILI_WRITE_8BIT(color_high); ILI_WRITE_8BIT(color_low); 	
 	}
 }
 
@@ -270,9 +251,11 @@ void ili_init()
 	ILI_RST_IDLE;
 
 	// Approx 10ms delay at 128MHz clock
+#if 0	
 	for (uint32_t i = 0; i < 2000000; i++)
 		__asm__("nop");
-
+#endif
+	delay(10);
 
 	sendSequence(dso_resetOff);
 	sendSequence(dso_wakeOn);

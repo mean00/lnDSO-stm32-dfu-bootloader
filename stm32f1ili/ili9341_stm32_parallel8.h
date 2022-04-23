@@ -461,5 +461,9 @@ void ili_fill_screen(uint16_t color);
  */
 void ili_draw_pixel(uint16_t x, uint16_t y, uint16_t color);
 
+void ili_dataBegin();
+void ili_dataEnd();
+void ili_sendWords(int nb, const uint16_t *data);
+
 //------------------------------------------------------------------------
 #endif /* INC_ILI9341_STM32_PARALLEL8_H_ */

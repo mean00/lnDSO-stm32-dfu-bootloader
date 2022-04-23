@@ -30,7 +30,14 @@ void *calloc(size_t n, size_t elemSize)
 {
     return sysAlloc(n*elemSize);
 }
-
+void *malloc(size_t n)
+{
+    return sysAlloc(n);
+}
+void free(void *p)
+{
+    
+}
 }
 
 // C++ part
