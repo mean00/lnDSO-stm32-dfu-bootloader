@@ -358,6 +358,7 @@ void setupForUsb()
 	lnPeripherals::enable(pGPIOA);
     lnPeripherals::enable(pGPIOB);
     lnPeripherals::enable(pGPIOC);
+	lnPeripherals::enable(pAF);
 	// start tick interrupt
     portNVIC_SYSTICK_CTRL_REG = 0UL;
     portNVIC_SYSTICK_CURRENT_VALUE_REG = 0UL;
