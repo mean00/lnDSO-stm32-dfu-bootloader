@@ -377,6 +377,9 @@ void setupForUsb()
 	lnDigitalWrite(PA12,0);
 	xDelay(100);
 	lnDigitalWrite(PA12,1);
+
+	lnDigitalWrite(PA6,1);
+	lnPinMode(PA6,lnOUTPUT);
 }
 /**
  * 

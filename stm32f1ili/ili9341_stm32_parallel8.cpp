@@ -27,7 +27,7 @@ SOFTWARE.
 //TFT width and height default global variables
 uint16_t ili_tftwidth = 320;
 uint16_t ili_tftheight = 240;
-bool is7789=true;
+bool is7789=false;
 #define FAKE_DELAY_COMMAND 0x55
 #define ILI9341_INVERTOFF  0x20
 
@@ -173,6 +173,14 @@ void ili_rotate_display(uint8_t rotation)
 #define ILI9341_MADCTL_MV  0x20 
 #define ILI9341_MADCTL_ML  0x10
 
+	const uint8_t mad_9341[4]={ILI9341_MADCTL_MY,	 
+					ILI9341_MADCTL_MX | ILI9341_MADCTL_MY | ILI9341_MADCTL_MV, 
+					ILI9341_MADCTL_MX,
+					ILI9341_MADCTL_MV	};
+	const uint8_t mad_7789[4]={ILI9341_MADCTL_MX | ILI9341_MADCTL_MY,	 
+					ILI9341_MADCTL_MY | ILI9341_MADCTL_MV,
+					0,
+					ILI9341_MADCTL_MX | ILI9341_MADCTL_MV 	};
 	if((rotation & 1))
 	{
 		ili_tftheight = new_width;
@@ -183,26 +191,10 @@ void ili_rotate_display(uint8_t rotation)
 		ili_tftwidth = new_width;
 	}
 	uint8_t t;
-	
-	if(!is7789)
-	{
-		switch (rotation)
-		{
-			case 1:        t = ILI9341_MADCTL_MX | ILI9341_MADCTL_MY | ILI9341_MADCTL_MV ;          break;
-			case 2:        t = ILI9341_MADCTL_MX ;                          break;
-			case 3:        t = ILI9341_MADCTL_MV ;                          break;
-			case 0:        default:t = ILI9341_MADCTL_MY ;                  break;
-		}
-	}else
-	{
-		switch(rotation) 
-		{
-			case 1:        t = ILI9341_MADCTL_MY | ILI9341_MADCTL_MV ;          break;
-			case 2:        t = 0 ;                                              break;
-			case 3:        t = ILI9341_MADCTL_MX | ILI9341_MADCTL_MV ;          break;
-			case 0:        default: t = ILI9341_MADCTL_MX | ILI9341_MADCTL_MY ; break;
-		}
-	}	
+	if(is7789) 
+		t=mad_7789[rotation];
+	else 
+		t=mad_9341[rotation];
 
  	writeCmdParam(ILI_MADCTL,1,&t);	
 }
@@ -212,31 +204,46 @@ void ili_rotate_display(uint8_t rotation)
  * @param reg
  * @return 
  */
+static void wait()
+{
+	for(int i=0;i<100;i++)
+	  __asm__("nop");
+}
+static uint8_t read8()
+{
+  wait();
+  ILI_RD_ACTIVE  ;
+  wait();
+  uint8_t u=lnReadPort(1) &0xff;
+  ILI_RD_IDLE;
+  wait();
+  return u;
+}
+/**
+ * 
+ */
 uint32_t ili_readRegister32(int r)
 {
   uint32_t val;
   uint8_t x;
 
-  ILI_CS_ACTIVE;
+  //ILI_CS_ACTIVE;
  _ili_write_command_8bit(r);
-  //setReadDir();  // Set up LCD data port(s) for READ operations
-  for(int i=PB0;i<PB8;i++)
-	lnPinMode(i,lnINPUT_PULLUP);
+  
   ILI_DC_DAT;
 
+  for(int i=PB0;i<PB8;i++) 
+  	lnPinMode(i,lnINPUT_PULLUP);
 
-  delay(1);
-  uint8_t u1,u2,u3,u4;
-  
-  ILI_READ_8BIT(u1);
-  ILI_READ_8BIT(u2);
-  ILI_READ_8BIT(u3);
-  ILI_READ_8BIT(u4);
-  for(int i=PB0;i<PB8;i++)
-	lnPinMode(i,lnOUTPUT);
+  uint32_t u=0;  
+  for(int i=0;i<4;i++) 
+  {
+  	u=(u<<8)+read8();
+  }
 
-  //setwritedir
-  return (u1<<24)+(u2<<16)+(u3<<8)+u4;
+  for(int i=PB0;i<PB8;i++) 
+  	lnPinMode(i,lnOUTPUT);  
+  return u;
 }
 
 
@@ -259,6 +266,7 @@ void ili_init()
 	sendSequence(dso_wakeOn);
 
 	//
+	ili_readRegister32(0xd3);
   	uint32_t reg04=ili_readRegister32(0x04)&0xffff ;  
 	if(reg04==0x8552) is7789=true;
 }

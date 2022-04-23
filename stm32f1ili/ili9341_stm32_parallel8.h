@@ -138,8 +138,9 @@ SOFTWARE.
 #define ILI_D5			GPIO5
 #define ILI_D6			GPIO6
 #define ILI_D7			GPIO7
+#define ILI_PORT_CTRL_A	GPIOA
 #define ILI_PORT_CTRL_B	GPIOB
-#define ILI_RD			GPIO10
+#define ILI_RD			GPIO6
 #define ILI_RST			GPIO11
 #define ILI_PORT_CTRL_C	GPIOC
 #define ILI_CS			GPIO13
@@ -162,8 +163,8 @@ AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_OFF: JTAG-DP disabled and SW-DP disabled
  */
 /*************************** Pin confirugation END ************************/
 
-#define ILI_RD_ACTIVE		GPIO_BRR(ILI_PORT_CTRL_B) = ILI_RD
-#define ILI_RD_IDLE			GPIO_BSRR(ILI_PORT_CTRL_B) = ILI_RD
+#define ILI_RD_ACTIVE		GPIO_BRR(ILI_PORT_CTRL_A) = ILI_RD
+#define ILI_RD_IDLE			GPIO_BSRR(ILI_PORT_CTRL_A) = ILI_RD
 #define ILI_WR_ACTIVE		GPIO_BRR(ILI_PORT_CTRL_C) = ILI_WR
 #define ILI_WR_IDLE			GPIO_BSRR(ILI_PORT_CTRL_C) = ILI_WR
 #define ILI_DC_CMD			GPIO_BRR(ILI_PORT_CTRL_C) = ILI_DC
