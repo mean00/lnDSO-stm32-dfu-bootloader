@@ -5,10 +5,7 @@
 #include "lnRCU.h"
 #include "lnIRQ.h"
 #include "ili_hs.h"
-extern "C"
-{
 #include "ili9341_stm32_parallel8.h"
-}
 #include "../gfx/generated/dfu_usb_decl.h"
 #include "../gfx/generated/dfu_usb_compressed.h"
 #define ST7735_BUFFER_SIZE_WORD 128

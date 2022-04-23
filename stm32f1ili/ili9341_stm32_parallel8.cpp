@@ -21,12 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <stdlib.h>
+#include "lnArduino.h"
 #include <ili9341_stm32_parallel8.h>
 
 //TFT width and height default global variables
 uint16_t ili_tftwidth = 320;
 uint16_t ili_tftheight = 240;
+bool is7789=true;
 #define FAKE_DELAY_COMMAND 0x55
 #define ILI9341_INVERTOFF  0x20
 
@@ -48,7 +49,7 @@ static const uint8_t dso_wakeOn[] __attribute__((used))= {
     0
 } ;
 
-extern void delay(int ms);
+extern "C" void delay(int ms);
 
 /**
  * Initialize the display driver
@@ -91,8 +92,8 @@ static void sendSequence( const uint8_t *data)
  */
 void ili_set_address_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-	uint8_t xx[4]={x1>>8,x1,x2>>8,x2};
-	uint8_t yy[4]={y1>>8,y1,y2>>8,y2};
+	uint8_t xx[4]={(uint8_t)(x1>>8),(uint8_t)x1,(uint8_t)(x2>>8),(uint8_t)x2};
+	uint8_t yy[4]={(uint8_t)(y1>>8),(uint8_t)y1,(uint8_t)(y2>>8),(uint8_t)y2};
 
 	writeCmdParam(ILI_CASET,4,xx);
 	writeCmdParam(ILI_PASET,4,yy);
@@ -159,46 +160,51 @@ void ili_rotate_display(uint8_t rotation)
 	/*
 	* 	(uint8_t)rotation :	Rotation Type
 	* 					0 : Default landscape
-	* 					1 : Potrait 1
+	* 					1 : Portrait 1
 	* 					2 : Landscape 2
-	* 					3 : Potrait 2
+	* 					3 : Portrait 2
 	*/
 
-#ifdef USER_DEFAULT_PLATFORM
-    uint16_t new_height = 240;
-    uint16_t new_width = 320;
-#elif DSO138_PLATFORM
     uint16_t new_height = 320;
     uint16_t new_width = 240;
-#endif
 
-	switch (rotation)
+#define ILI9341_MADCTL_MY  0x80
+#define ILI9341_MADCTL_MX  0x40
+#define ILI9341_MADCTL_MV  0x20 
+#define ILI9341_MADCTL_ML  0x10
+
+	if((rotation & 1))
 	{
-		case 0:
-			_ili_write_command_8bit(ILI_MADCTL);		//Memory Access Control
-			_ili_write_data_8bit(0x40);				//MX: 1, MY: 0, MV: 0	(Landscape 1. Default)
-			ili_tftheight = new_height;
-			ili_tftwidth = new_width;
-			break;
-		case 1:
-			_ili_write_command_8bit(ILI_MADCTL);		//Memory Access Control
-			_ili_write_data_8bit(0x20);				//MX: 0, MY: 0, MV: 1	(Potrait 1)
-			ili_tftheight = new_width;
-			ili_tftwidth = new_height;
-			break;
-		case 2:
-			_ili_write_command_8bit(ILI_MADCTL);		//Memory Access Control
-			_ili_write_data_8bit(0x80);				//MX: 0, MY: 1, MV: 0	(Landscape 2)
-			ili_tftheight = new_height;
-			ili_tftwidth = new_width;
-			break;
-		case 3:
-			_ili_write_command_8bit(ILI_MADCTL);		//Memory Access Control
-			_ili_write_data_8bit(0xE0);				//MX: 1, MY: 1, MV: 1	(Potrait 2)
-			ili_tftheight = new_width;
-			ili_tftwidth = new_height;
-			break;
+		ili_tftheight = new_width;
+		ili_tftwidth = new_height;
+	}else
+	{
+		ili_tftheight = new_height;
+		ili_tftwidth = new_width;
 	}
+	uint8_t t;
+	
+	if(!is7789)
+	{
+		switch (rotation)
+		{
+			case 1:        t = ILI9341_MADCTL_MX | ILI9341_MADCTL_MY | ILI9341_MADCTL_MV ;          break;
+			case 2:        t = ILI9341_MADCTL_MX ;                          break;
+			case 3:        t = ILI9341_MADCTL_MV ;                          break;
+			case 0:        default:t = ILI9341_MADCTL_MY ;                  break;
+		}
+	}else
+	{
+		switch(rotation) 
+		{
+			case 1:        t = ILI9341_MADCTL_MY | ILI9341_MADCTL_MV ;          break;
+			case 2:        t = 0 ;                                              break;
+			case 3:        t = ILI9341_MADCTL_MX | ILI9341_MADCTL_MV ;          break;
+			case 0:        default: t = ILI9341_MADCTL_MX | ILI9341_MADCTL_MY ; break;
+		}
+	}	
+
+ 	writeCmdParam(ILI_MADCTL,1,&t);	
 }
 
 /**
@@ -214,6 +220,8 @@ uint32_t ili_readRegister32(int r)
   ILI_CS_ACTIVE;
  _ili_write_command_8bit(r);
   //setReadDir();  // Set up LCD data port(s) for READ operations
+  for(int i=PB0;i<PB8;i++)
+	lnPinMode(i,lnINPUT_PULLUP);
   ILI_DC_DAT;
 
 
@@ -224,7 +232,9 @@ uint32_t ili_readRegister32(int r)
   ILI_READ_8BIT(u2);
   ILI_READ_8BIT(u3);
   ILI_READ_8BIT(u4);
-  
+  for(int i=PB0;i<PB8;i++)
+	lnPinMode(i,lnOUTPUT);
+
   //setwritedir
   return (u1<<24)+(u2<<16)+(u3<<8)+u4;
 }
@@ -247,4 +257,8 @@ void ili_init()
 	delay(10);
 	sendSequence(dso_resetOff);
 	sendSequence(dso_wakeOn);
+
+	//
+  	uint32_t reg04=ili_readRegister32(0x04)&0xffff ;  
+	if(reg04==0x8552) is7789=true;
 }
