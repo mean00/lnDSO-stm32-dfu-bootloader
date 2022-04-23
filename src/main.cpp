@@ -84,8 +84,7 @@ int main(void)
 		go_dfu=1; // absurd size
 	}
 	clear_reboot_flags();
-	go_dfu=1;
-
+	//go_dfu=1;
 
 	if (!go_dfu)  // all seems good, run the app
 	{

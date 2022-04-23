@@ -266,11 +266,11 @@ void ili_init()
 	
 
 	
-	delay(50);
+	delay(20);
 	lnDigitalWrite(DSO_RESET_PIN,0);
 	delay(50);
 	lnDigitalWrite(DSO_RESET_PIN,1);
-	delay(50);
+
 
 	ILI_CS_ACTIVE;
 
