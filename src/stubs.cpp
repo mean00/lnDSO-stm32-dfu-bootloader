@@ -28,7 +28,7 @@ void xDelay(int ms)
 			return;
 	}
 }
-void delay(int ms)
+extern "C" void delay(int ms)
 {
     xDelay(ms);
 }

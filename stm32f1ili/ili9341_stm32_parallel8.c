@@ -27,6 +27,26 @@ SOFTWARE.
 //TFT width and height default global variables
 uint16_t ili_tftwidth = 320;
 uint16_t ili_tftheight = 240;
+#define FAKE_DELAY_COMMAND 0x55
+#define ILI9341_INVERTOFF  0x20
+
+static const uint8_t dso_resetOff[] __attribute__((used))= {
+	0x01, 0,            //Soft Reset
+	FAKE_DELAY_COMMAND, 150,  // .kbv will power up with ONLY reset, sleep out, display on
+	0x28, 0,            //Display Off
+	0x3A, 1, 0x55,      //Pixel read=565, write=565.
+    0
+} ;
+static const uint8_t dso_wakeOn[] __attribute__((used))= {
+	0x11, 0,            //Sleep Out
+	FAKE_DELAY_COMMAND, 150,
+	0x29, 0,            //Display On
+	//additional settings
+	ILI9341_INVERTOFF, 0,			// invert off
+	0x36, 1, 0x48,      //Memory Access
+	0xB0, 1, 0x40,      //RGB Signal [40] RCM=2
+    0
+} ;
 
 
 
@@ -210,6 +230,32 @@ void ili_rotate_display(uint8_t rotation)
 /**
  * Initialize the display driver
  */
+
+static void writeCmdParam( const uint8_t cmd, int size, const uint8_t *data)
+{
+	_ili_write_command_8bit(cmd);
+	for(int i=0;i<size;i++)
+		_ili_write_data_8bit(data[i]);
+}
+
+static void sendSequence( const uint8_t *data)
+{
+	while (*data ) 
+        {
+            uint8_t cmd = data[0];
+            uint8_t len = data[1];
+            data+=2;
+            if (cmd == FAKE_DELAY_COMMAND) 
+            {			
+                delay(len);
+                continue;
+            }                 
+            writeCmdParam(cmd, len, data);
+            data += len;		
+	}        
+}
+
+
 void ili_init()
 {
 	// Set gpio clock
@@ -227,16 +273,20 @@ void ili_init()
 	for (uint32_t i = 0; i < 2000000; i++)
 		__asm__("nop");
 
+
+	sendSequence(dso_resetOff);
+	sendSequence(dso_wakeOn);
+
+
+#if 0
 	_ili_write_command_8bit(0xEF);
 	_ili_write_data_8bit(0x03);
 	_ili_write_data_8bit(0x80);
 	_ili_write_data_8bit(0x02);
-
 	_ili_write_command_8bit(0xCF);
 	_ili_write_data_8bit(0x00);
 	_ili_write_data_8bit(0XC1);
 	_ili_write_data_8bit(0X30);
-
 	_ili_write_command_8bit(0xED);
 	_ili_write_data_8bit(0x64);
 	_ili_write_data_8bit(0x03);
@@ -335,4 +385,5 @@ void ili_init()
 
 	_ili_write_command_8bit(ILI_DISPON);    //Display on
 	//delay 150ms if display output is inaccurate
+#endif
 }
