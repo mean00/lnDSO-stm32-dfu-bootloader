@@ -57,7 +57,7 @@ int main(void)
 	
 	go_dfu=0;
 	go_dfu = rebooted_into_dfu();
-    // Activate GPIO A,B,C
+    // Activate GPIO B for now
     lnPeripherals::enable(pGPIOB);
   	lnPeripherals::enable(pAF);
 	lnExtiSWDOnly();

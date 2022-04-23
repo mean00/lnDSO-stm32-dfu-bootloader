@@ -187,6 +187,11 @@ AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_OFF: JTAG-DP disabled and SW-DP disabled
 										rcc_periph_clock_enable(RCC_AFIO); \
 									}
 	#define ILI_CONFIG_GPIO()			{ \
+										gpio_set_mode( \
+											ILI_PORT_CTRL_A, \
+											GPIO_MODE_OUTPUT_50_MHZ, \
+											GPIO_CNF_OUTPUT_PUSHPULL, \
+											GPIO6); \
 										/*Configure ILI_PORT_DATA GPIO pins */ \
 										gpio_set_mode( \
 											ILI_PORT_DATA, \
