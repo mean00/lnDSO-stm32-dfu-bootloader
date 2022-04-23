@@ -35,11 +35,8 @@
      #endif
 #else
     #if LN_ARCH == LN_ARCH_ARM
-        #if LN_MCU_SPEED > 96000000
-            #define ILI_NOP __asm("nop");
-        #else
-            #define ILI_NOP {}
-        #endif
+            #define ILI_NOP {}  __asm("nop"); __asm("nop"); __asm("nop"); __asm("nop");
+
     #else
         #error UNSUPPORTED ARCH
     #endif
@@ -52,7 +49,7 @@ public:
         {
             
         }
-    void pulseLowNop() __attribute__((always_inline)) { *_onoff=_offbit;ILI_NOP;*_onoff=_onbit;ILI_NOP;}
+    void pulseLowNop() __attribute__((always_inline)) { *_onoff=_offbit;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;*_onoff=_onbit;}
 };
 
 /**
@@ -67,7 +64,7 @@ class lnFast8bitIo: public lnFastIO
                 {
                     _bop=bop;
                 }
-                void pulseLowNop() { *_onoff=_offbit;ILI_NOP;*_onoff=_onbit;ILI_NOP}
+                void pulseLowNop() { *_onoff=_offbit;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;ILI_NOP;*_onoff=_onbit;ILI_NOP}
                 void pulsesLowNop(int count);
                 void pulseData(int count, int hi, int lo);                
                 void sendBlock(int nb, uint16_t *data);

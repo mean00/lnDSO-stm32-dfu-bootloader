@@ -10,6 +10,7 @@ enum Peripherals
             pGPIOA,
             pGPIOB,
             pGPIOC,
+            pAF,
             pAPB1=100,
             pAPB2,
             pSYSCLOCK,

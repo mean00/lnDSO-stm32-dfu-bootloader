@@ -20,6 +20,7 @@ void lnPeripherals::enable(const Peripherals periph)
     uint32_t bit=0;
     switch(periph)
     {
+        case pAF:    bit=LN_RCU_APB2_AFEN;break;     
         case pGPIOA: bit=LN_RCU_APB2_PAEN;break;
         case pGPIOB: bit=LN_RCU_APB2_PBEN;break;
         case pGPIOC: bit=LN_RCU_APB2_PCEN;break;

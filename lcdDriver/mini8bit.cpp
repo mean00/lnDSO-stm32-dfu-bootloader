@@ -40,6 +40,61 @@ ln8bit9341::ln8bit9341(int w, int h, int port, int pinDC, int pinCS, int pinWrit
     _PhysicalYoffset = 0;
     _bop = (uint32_t *)lnGetGpioToggleRegister(_dataPort);
     _ioWrite = new lnFast8bitIo(_bop, pinWrite);
+// pinCS = PC13
+// pinDC = PC14
+// pinWrite = PC15
+#if 0 // WORKS!
+    bool onoff=true;       
+    while(1)
+    {
+     //   xDelay(5);
+        _ioCS.pulseLowNop();
+        _ioWrite->pulseLowNop();
+        _ioDC.pulseLowNop();
+        _ioRead.pulseLowNop();
+    }
+#endif
+
+#if 0 // WORKS!
+    bool onoff=true;
+    lnDigitalWrite(PC13,true);
+    lnDigitalWrite(PC14,false);
+    lnDigitalWrite(PC15,true);
+    
+    while(1)
+    {
+        xDelay(500);
+        lnDigitalWrite(PC13,0);
+        lnDigitalWrite(PC14,1);
+        lnDigitalWrite(PC15,0);
+        xDelay(500);
+        lnDigitalWrite(PC13,1);
+        lnDigitalWrite(PC14,0);
+        lnDigitalWrite(PC15,1);
+
+
+        onoff=!onoff;
+        Logger("*Hey*\n");
+    }
+#endif
+
+#if 0
+
+    lnPinMode(PINPIN,lnOUTPUT);
+    while(1)
+    {
+                
+        xDelay(1);
+        lnDigitalWrite(PINPIN,1);
+        //_ioCS.pulseLow(); // 13
+        //_ioWrite->pulseLow(); //15 
+        //_ioDC.pulseLow(); //14 
+        xDelay(1);
+        lnDigitalWrite(PINPIN,0);
+        
+    }
+#endif    
+
 }
 /**
  *
@@ -246,7 +301,7 @@ void ln8bit9341::reset()
         lnDigitalWrite(_pinReset, HIGH);
         xDelay(50);
     }
-    _chipId = readChipId();
+    _chipId = readChipId();   
 }
 /**
  *
