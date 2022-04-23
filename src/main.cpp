@@ -37,7 +37,7 @@
 void runDfu();
 void runLcd();
 void setupForUsb();
-
+void lnExtiSWDOnly();
 #define FORCE_DFU_IO PB7
 
 
@@ -57,9 +57,11 @@ int main(void)
 	
 	go_dfu=0;
 	go_dfu = rebooted_into_dfu();
-
     // Activate GPIO A,B,C
     lnPeripherals::enable(pGPIOB);
+  	lnPeripherals::enable(pAF);
+	lnExtiSWDOnly();
+
     lnPinMode(FORCE_DFU_IO,    lnINPUT_PULLUP);
 	if(!lnDigitalRead(FORCE_DFU_IO)) // "OK" Key pressed
 		go_dfu|=1; 
@@ -68,7 +70,8 @@ int main(void)
 	 	go_dfu|=2;
 	RCC_CSR |= RCC_CSR_RMVF; // Clear reset flag
 
-	if(!go_dfu && imageSize<256*1024) // Check hash of app is correct
+	if(!go_dfu)
+	if(imageSize<256*1024) // Check hash of app is correct
 	{
 		if(imageSize!=0x1234 || checksum!=0x5678)	 // valid but no hash, we accept that too
 		{
@@ -76,9 +79,12 @@ int main(void)
 			if(computed!=checksum)
 				go_dfu|=4;
 		}
+	}else
+	{
+		go_dfu=1; // absurd size
 	}
 	clear_reboot_flags();
-	//go_dfu=1;
+	go_dfu=1;
 
 
 	if (!go_dfu)  // all seems good, run the app
@@ -96,6 +102,6 @@ int main(void)
 
 	// Something is wrong , go DFU
 	setupForUsb();
-	//runLcd();
+	runLcd();
 	runDfu();
 }

@@ -272,10 +272,43 @@ static void _full_system_reset() {
 #define RCC_CR_PLLRDY   (1 << 25)
 #define RCC_CR       (*(volatile uint32_t*)0x40021000U)
 #define RCC_CFGR     (*(volatile uint32_t*)0x40021004U)
+#define RCC_BCDR     (*(volatile uint32_t*)0x40021020U)
+#define PWR 		(volatile uint32_t *)(0x40000000U+0x7000U)
+#define LN_AFIO_ADR     (0x40010000)
 
 /**
  * 
  */
+#define LN_AFIO_PCF0_SWJ_SET(x) (x<<24)
+#define LN_AFIO_PCF0_SWJ_MASK (~(7<<24))
+
+struct LN_AFIOx
+{
+    uint32_t EC;
+    uint32_t PCF0;
+    uint32_t EXTISS[4];
+    uint32_t dummy;
+    uint32_t PCF1;
+};
+typedef volatile LN_AFIOx LN_AFIO;    
+
+// Arm version
+void lnExtiSWDOnly()
+{
+    LN_AFIO *afio=(LN_AFIO*)LN_AFIO_ADR;
+    uint32_t v=afio->PCF0;
+    v&=LN_AFIO_PCF0_SWJ_MASK;
+    v|=LN_AFIO_PCF0_SWJ_SET(2); // SWD, no Jtag
+    afio->PCF0=v;
+    // Do partial remap on timer1 to follow bluepill layout
+    v=afio->PCF0;
+    v&=~(3<<8);
+    v|=1<<8;
+    afio->PCF0=v;
+    
+}
+
+
 void clock_setup_in_hse_8mhz_out_72mhz() {
 	// No need to use HSI or HSE while setting up the PLL, just use the RC osc.
 
@@ -305,6 +338,16 @@ void clock_setup_in_hse_8mhz_out_72mhz() {
 
 	// Select PLL as SYSCLK source.
     RCC_CFGR = (RCC_CFGR & ~RCC_CFGR_SW) | (RCC_CFGR_SW_SYSCLKSEL_PLLCLK << RCC_CFGR_SW_SHIFT);
+#if 0
+	// Disable external 32k
+    *PWR = 1<<8;
+	__asm__("nop");
+	__asm__("nop");
+	RCC_BCDR |= 1<<16; // reset
+	__asm__("nop");
+	__asm__("nop");
+	RCC_BCDR=0;
+#endif
 }
 /**
  * 
