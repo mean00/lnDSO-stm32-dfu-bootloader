@@ -201,6 +201,34 @@ void ili_rotate_display(uint8_t rotation)
 	}
 }
 
+/**
+ * This is not used much
+ * @param reg
+ * @return 
+ */
+uint32_t ili_readRegister32(int r)
+{
+  uint32_t val;
+  uint8_t x;
+
+  ILI_CS_ACTIVE;
+ _ili_write_command_8bit(r);
+  //setReadDir();  // Set up LCD data port(s) for READ operations
+  ILI_DC_DAT;
+
+
+  delay(1);
+  uint8_t u1,u2,u3,u4;
+  
+  ILI_READ_8BIT(u1);
+  ILI_READ_8BIT(u2);
+  ILI_READ_8BIT(u3);
+  ILI_READ_8BIT(u4);
+  
+  //setwritedir
+  return (u1<<24)+(u2<<16)+(u3<<8)+u4;
+}
+
 
 void ili_init()
 {
