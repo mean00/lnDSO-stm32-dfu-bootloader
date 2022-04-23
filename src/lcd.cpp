@@ -63,9 +63,11 @@ void runLcd()
 {
   ili_init();
   ili_rotate_display(1);
-  ili_fill_screen(ILI_COLOR_CYAN);
+  ili_fill_screen(ILI_COLOR_BLACK);
 
-  drawHSBitmap(dfu_usb_width,dfu_usb_height,(320-dfu_usb_width)/2,(240-dfu_usb_height)/2,0xff,0,dfu_usb);
+  drawHSBitmap(dfu_usb_width,dfu_usb_height,(320-dfu_usb_width)/2,(240-dfu_usb_height)/2,
+        0xffff,0,
+        dfu_usb);
 
 }
 
