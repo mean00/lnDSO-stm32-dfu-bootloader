@@ -1,14 +1,20 @@
 
 lnDSO bootloader
 ================
-This is a slightly modified version of STM32F103 DFU bootloader for the lnDSO project.
-It also contains a modified version of https://github.com/abhra0897/stm32f1_ili9341_parallel optimized for size
+This is a modified version of STM32F103 DFU bootloader for the lnDSO project.
+It also contains a modified version of https://github.com/abhra0897/stm32f1_ili9341_parallel 
 Changes :
 * Press the "OK" button to force DFU
 * Signature is at the beginning of the RAM to reboot to DFU
 * Extended to 8kB max size
 * Cmake based build system derived from lnArduino
 * Firmware is xxhashed for integrity check
+* Heatshrink display of picture added to stm32f1_ili9341_parallel
+* Autodetect ILI9341/ST7789
+* Optimized stm32f1_ili9341_parallel for size
+
+
+---------------------------------------------------------------
 
 Original Readme follows 
 
