@@ -246,22 +246,34 @@ uint32_t ili_readRegister32(int r)
   return u;
 }
 
+#define DSO_RESET_PIN PA6
+
+void setPinToDefault(int pin)
+{
+	lnDigitalWrite(pin,1);		
+	lnPinMode(pin,lnOUTPUT);
+}
 
 void ili_init()
 {
-	// Set gpio clock
-	// MEANX 
-	//ILI_CONFIG_GPIO_CLOCK();
-	// Configure gpio output dir and mode
-	ILI_CONFIG_GPIO();
+	for(int i=PB0;i<PB10;i++)
+		setPinToDefault(i);
+	setPinToDefault(DSO_RESET_PIN);
+	setPinToDefault(PC13);
+	setPinToDefault(PC14);
+	setPinToDefault(PC15);
+
+	
+
+	
+	delay(50);
+	lnDigitalWrite(DSO_RESET_PIN,0);
+	delay(50);
+	lnDigitalWrite(DSO_RESET_PIN,1);
+	delay(50);
 
 	ILI_CS_ACTIVE;
 
-	ILI_RST_IDLE;
-	ILI_RST_ACTIVE;
-	ILI_RST_IDLE;
-
-	delay(10);
 	sendSequence(dso_resetOff);
 	sendSequence(dso_wakeOn);
 
@@ -270,3 +282,4 @@ void ili_init()
   	uint32_t reg04=ili_readRegister32(0x04)&0xffff ;  
 	if(reg04==0x8552) is7789=true;
 }
+

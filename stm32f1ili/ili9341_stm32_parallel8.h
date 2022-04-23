@@ -141,7 +141,7 @@ SOFTWARE.
 #define ILI_PORT_CTRL_A	GPIOA
 #define ILI_PORT_CTRL_B	GPIOB
 #define ILI_RD			GPIO6
-#define ILI_RST			GPIO11
+#define ILI_RST			GPIO9
 #define ILI_PORT_CTRL_C	GPIOC
 #define ILI_CS			GPIO13
 #define ILI_DC			GPIO14
