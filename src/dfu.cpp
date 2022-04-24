@@ -382,8 +382,12 @@ void setupForUsb()
 /**
  * 
  */
+extern void animate();
+extern volatile uint32_t sysTick;
+
 void runDfu()
 {
+	int nextTick=sysTick+100;
 	get_dev_unique_id(serial_no);
 	usb_init();
 	while (1) {
@@ -392,6 +396,11 @@ void runDfu()
 		if (usbdfu_state == STATE_DFU_MANIFEST) {
 			// USB device must detach, we just reset...			
 			_full_system_reset();
+		}
+		if(sysTick>nextTick)
+		{
+			animate();
+			nextTick+=100;
 		}
 	}
 }
