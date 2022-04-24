@@ -1,5 +1,5 @@
 
-This project is made  of several subprojects modified and glued together, the part i wrote are MIT.
+This project is made  of several subprojects modified and glued together, the parts i wrote are MIT.
 - https://github.com/abhra0897/stm32f1_ili9341_parallel  : See stm32f1ili/LICENSE (MIT)
 - libopencm3:                                              See stm32f1ili/libopencm3/COPYING.* (GPL3/LPG3)
 - Heatshrink  :                                            See stm32f1ili/heatshrink/LICENSE (MIT style ?)
