@@ -73,6 +73,8 @@ MESSAGE(STATUS "Configured for ${LN_MCU}")
 MESSAGE(STATUS "Total Flash ${LN_MCU_FLASH_SIZE}")
 
 IF(USE_GD32F3)
-    set_target_properties(lnDSO_Bootloader PROPERTIES OUTPUT_NAME lnDSO_Bootloader_USE_GD32F303)
+    set_target_properties(lnDSO_Bootloader PROPERTIES OUTPUT_NAME lnDSO_Bootloader_GD32F303)
+ELSE(USE_GD32F3)    
+    set_target_properties(lnDSO_Bootloader PROPERTIES OUTPUT_NAME lnDSO_Bootloader_STM32F103)
 ENDIF(USE_GD32F3)
 
